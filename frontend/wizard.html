@@ -10,216 +10,291 @@
   body { background: #faf9f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   .step { display: none; }
   .step.active { display: block; }
-  input, select, textarea { outline: none; }
-  input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-  .btn-primary { background: #6366f1; color: white; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-  .btn-primary:hover { background: #4f46e5; }
-  .btn-primary:disabled { background: #a5b4fc; cursor: not-allowed; }
-  .btn-ghost { background: transparent; color: #6b7280; padding: 12px 24px; border-radius: 10px; font-weight: 500; cursor: pointer; border: none; }
-  .btn-ghost:hover { background: #f3f4f6; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; background: #f3f4f6; border: 1.5px solid #e5e7eb; border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .chip.selected { background: #eef2ff; border-color: #6366f1; color: #4f46e5; font-weight: 600; }
-  .field { margin-bottom: 20px; }
-  .field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
-  .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #111827; background: white; transition: all 0.2s; }
-  .progress-bar { height: 4px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #6366f1; border-radius: 4px; transition: width 0.4s; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .chip { display: inline-flex; align-items: center; gap: 5px; background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 20px; padding: 5px 13px; font-size: 12.5px; cursor: pointer; transition: all 0.15s; user-select: none; }
+  .chip:hover { border-color: #a5b4fc; }
+  .chip.selected { background: #eef2ff; border-color: #6366f1; color: #4338ca; font-weight: 600; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+  .field .hint { font-size: 11.5px; color: #9ca3af; margin-top: 4px; }
+  .inp { width: 100%; padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #111827; background: white; transition: border 0.2s; }
+  .section-title { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 10px; }
+  .option-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 2px solid #f3f4f6; border-radius: 12px; cursor: pointer; transition: all 0.15s; margin-bottom: 8px; }
+  .option-card:hover { border-color: #c7d2fe; }
+  .option-card.selected { border-color: #6366f1; background: #fafafe; }
+  .option-card input { margin-top: 2px; accent-color: #6366f1; }
+  .progress-bar { height: 4px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-bottom: 28px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,#6366f1,#818cf8); border-radius: 4px; transition: width 0.4s; }
+  .tag-input-wrap { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1.5px solid #e5e7eb; border-radius: 10px; background: white; min-height: 44px; cursor: text; }
+  .tag-input-wrap:focus-within { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .tag-pill { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #4338ca; border-radius: 20px; padding: 2px 10px 2px 10px; font-size: 12px; font-weight: 500; }
+  .tag-pill button { background: none; border: none; cursor: pointer; color: #818cf8; font-size: 14px; line-height: 1; padding: 0; }
+  .tag-input-wrap input { border: none; outline: none; font-size: 13px; min-width: 120px; flex: 1; background: transparent; padding: 2px 4px; }
 </style>
 </head>
 <body>
+<div class="min-h-screen flex items-start justify-center pt-8 pb-16 px-4">
+  <div class="w-full max-w-2xl">
 
-<div class="min-h-screen flex items-start justify-center pt-10 pb-16 px-4">
-  <div class="w-full max-w-xl">
-
-    <!-- Header -->
-    <div class="flex items-center gap-3 mb-8">
-      <a href="/" class="text-gray-400 hover:text-gray-600 text-sm flex items-center gap-1">
-        ← Voltar ao painel
-      </a>
+    <div class="flex items-center justify-between mb-6">
+      <a href="/" class="text-sm text-gray-400 hover:text-gray-600">← Voltar ao painel</a>
+      <span id="stepCounter" class="text-xs text-gray-400 font-medium">Passo 1 de 5</span>
     </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
 
-      <!-- Progress -->
-      <div class="mb-8">
-        <div class="flex justify-between text-xs text-gray-400 mb-2">
-          <span id="stepLabel">Passo 1 de 4</span>
-          <span id="stepName">Tipo de campanha</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill" style="width:25%"></div>
-        </div>
-      </div>
-
-      <!-- STEP 1: Tipo -->
+      <!-- STEP 1: Objetivo -->
       <div class="step active" id="step1">
-        <h2 class="text-xl font-bold text-gray-900 mb-1">O que você quer alcançar?</h2>
-        <p class="text-gray-500 text-sm mb-6">Escolha o objetivo principal da campanha</p>
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Qual é o objetivo da campanha?</h2>
+        <p class="text-gray-400 text-sm mb-6">Isso define como o Meta vai otimizar os seus anúncios</p>
 
-        <div class="space-y-3" id="typeOptions">
-          <label class="flex items-start gap-4 p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-indigo-200 transition type-option" data-value="leads">
-            <input type="radio" name="type" value="leads" class="mt-1 accent-indigo-600" checked>
-            <div>
-              <div class="font-semibold text-gray-900">Captar leads</div>
-              <div class="text-sm text-gray-500 mt-0.5">Formulário dentro do Facebook/Instagram — sem precisar de site ou pixel. Ideal para lançamentos.</div>
-            </div>
-          </label>
-          <label class="flex items-start gap-4 p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-indigo-200 transition type-option" data-value="traffic">
-            <input type="radio" name="type" value="traffic" class="mt-1 accent-indigo-600">
-            <div>
-              <div class="font-semibold text-gray-900">Tráfego para página</div>
-              <div class="text-sm text-gray-500 mt-0.5">Levar pessoas para sua página no Hotmart, Hostgator ou outro link.</div>
-            </div>
-          </label>
-        </div>
+        <label class="option-card" onclick="selectOption(this,'type','leads')">
+          <input type="radio" name="type" value="leads" checked>
+          <div>
+            <div class="font-semibold text-gray-900">📋 Captar leads</div>
+            <div class="text-sm text-gray-500 mt-0.5">Formulário dentro do Facebook/Instagram. Sem precisar de site ou pixel. Ideal para lançamentos e lista de espera.</div>
+          </div>
+        </label>
+        <label class="option-card" onclick="selectOption(this,'type','traffic')">
+          <input type="radio" name="type" value="traffic">
+          <div>
+            <div class="font-semibold text-gray-900">🌐 Tráfego para página</div>
+            <div class="text-sm text-gray-500 mt-0.5">Leva pessoas para seu link no Hotmart, página de vendas ou qualquer URL.</div>
+          </div>
+        </label>
+        <label class="option-card" onclick="selectOption(this,'type','engagement')">
+          <input type="radio" name="type" value="engagement">
+          <div>
+            <div class="font-semibold text-gray-900">❤️ Engajamento</div>
+            <div class="text-sm text-gray-500 mt-0.5">Aumentar curtidas, comentários e compartilhamentos. Bom para aquecer público antes de um lançamento.</div>
+          </div>
+        </label>
 
-        <div id="urlField" class="field mt-4 hidden">
-          <label>URL da página de destino</label>
-          <input type="url" id="destinationUrl" placeholder="https://..." />
+        <div id="urlFieldWrap" class="field mt-4 hidden">
+          <label>URL de destino *</label>
+          <input class="inp" type="url" id="destinationUrl" placeholder="https://hotmart.com/seu-produto">
         </div>
       </div>
 
       <!-- STEP 2: Produto e orçamento -->
       <div class="step" id="step2">
-        <h2 class="text-xl font-bold text-gray-900 mb-1">Sobre o produto</h2>
-        <p class="text-gray-500 text-sm mb-6">Informações básicas da campanha</p>
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Produto e orçamento</h2>
+        <p class="text-gray-400 text-sm mb-6">Informações básicas da campanha</p>
 
         <div class="field">
           <label>Nome do produto ou lançamento *</label>
-          <input type="text" id="productName" placeholder="Ex: Curso de Marketing Digital 2025" maxlength="80" />
-          <div class="text-xs text-gray-400 mt-1">Esse nome aparece internamente no Meta Ads Manager</div>
+          <input class="inp" type="text" id="productName" placeholder="Ex: Curso de Fotografia para Iniciantes" maxlength="100">
+          <div class="hint">Esse nome aparece apenas internamente no Meta Ads Manager</div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="field">
             <label>Orçamento diário (R$) *</label>
-            <input type="number" id="dailyBudget" placeholder="50" min="6" step="1" />
-            <div class="text-xs text-gray-400 mt-1">Mínimo R$ 6/dia</div>
+            <input class="inp" type="number" id="dailyBudget" placeholder="50" min="10" step="5">
+            <div class="hint">Mínimo recomendado: R$ 30/dia</div>
           </div>
           <div class="field">
             <label>Data de início *</label>
-            <input type="date" id="startDate" />
+            <input class="inp" type="date" id="startDate">
           </div>
         </div>
 
         <div class="field">
-          <label>Data de fim (opcional)</label>
-          <input type="date" id="endDate" />
-          <div class="text-xs text-gray-400 mt-1">Deixe em branco para campanha contínua</div>
+          <label>Data de fim</label>
+          <input class="inp" type="date" id="endDate">
+          <div class="hint">Deixe em branco para campanha contínua</div>
         </div>
       </div>
 
       <!-- STEP 3: Público -->
       <div class="step" id="step3">
         <h2 class="text-xl font-bold text-gray-900 mb-1">Quem você quer alcançar?</h2>
-        <p class="text-gray-500 text-sm mb-6">Configure o público-alvo</p>
+        <p class="text-gray-400 text-sm mb-5">Quanto mais específico, mais eficiente a campanha</p>
 
-        <div class="field">
-          <label>Localização</label>
-          <select id="locationSelect">
-            <option value="BR">Todo o Brasil</option>
-            <option value="SP">São Paulo (estado)</option>
-            <option value="RJ">Rio de Janeiro (estado)</option>
-            <option value="MG">Minas Gerais (estado)</option>
-            <option value="RS">Rio Grande do Sul (estado)</option>
-            <option value="PR">Paraná (estado)</option>
-            <option value="SC">Santa Catarina (estado)</option>
-            <option value="BA">Bahia (estado)</option>
-            <option value="GO">Goiás (estado)</option>
-            <option value="DF">Distrito Federal</option>
-            <option value="CE">Ceará (estado)</option>
-            <option value="PE">Pernambuco (estado)</option>
-            <option value="AM">Amazonas (estado)</option>
-          </select>
+        <div class="section-title">Temperatura do público</div>
+        <div class="grid grid-cols-3 gap-2 mb-5">
+          <label class="option-card !p-3 !mb-0 flex-col !gap-1 text-center" onclick="selectOption(this,'audience','cold')">
+            <input type="radio" name="audience" value="cold" checked class="hidden">
+            <div class="text-xl">🧊</div>
+            <div class="font-semibold text-sm">Frio</div>
+            <div class="text-xs text-gray-400">Não te conhece</div>
+          </label>
+          <label class="option-card !p-3 !mb-0 flex-col !gap-1 text-center" onclick="selectOption(this,'audience','warm')">
+            <input type="radio" name="audience" value="warm" class="hidden">
+            <div class="text-xl">🔥</div>
+            <div class="font-semibold text-sm">Quente</div>
+            <div class="text-xs text-gray-400">Já te segue/visitou</div>
+          </label>
+          <label class="option-card !p-3 !mb-0 flex-col !gap-1 text-center" onclick="selectOption(this,'audience','retargeting')">
+            <input type="radio" name="audience" value="retargeting" class="hidden">
+            <div class="text-xl">🎯</div>
+            <div class="font-semibold text-sm">Retargeting</div>
+            <div class="text-xs text-gray-400">Já interagiu</div>
+          </label>
         </div>
 
-        <div class="field">
-          <label>Faixa etária</label>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <div class="text-xs text-gray-500 mb-1">Mínima</div>
-              <select id="ageMin">
-                <option value="18">18 anos</option>
-                <option value="21">21 anos</option>
-                <option value="25" selected>25 anos</option>
-                <option value="30">30 anos</option>
-                <option value="35">35 anos</option>
-                <option value="40">40 anos</option>
-              </select>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500 mb-1">Máxima</div>
-              <select id="ageMax">
-                <option value="35">35 anos</option>
-                <option value="40">40 anos</option>
-                <option value="45">45 anos</option>
-                <option value="50">50 anos</option>
-                <option value="55" selected>55 anos</option>
-                <option value="65">65 anos</option>
-              </select>
-            </div>
+        <div class="section-title">Localização e faixa etária</div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="field">
+            <label>Estado</label>
+            <select class="inp" id="locationSelect">
+              <option value="BR">Todo o Brasil</option>
+              <option value="SP">São Paulo</option>
+              <option value="RJ">Rio de Janeiro</option>
+              <option value="MG">Minas Gerais</option>
+              <option value="RS">Rio Grande do Sul</option>
+              <option value="PR">Paraná</option>
+              <option value="SC">Santa Catarina</option>
+              <option value="BA">Bahia</option>
+              <option value="GO">Goiás</option>
+              <option value="DF">Distrito Federal</option>
+              <option value="CE">Ceará</option>
+              <option value="PE">Pernambuco</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Gênero</label>
+            <select class="inp" id="genderSelect">
+              <option value="0">Todos</option>
+              <option value="1">Masculino</option>
+              <option value="2">Feminino</option>
+            </select>
           </div>
         </div>
 
-        <div class="field">
-          <label>Interesses (opcional)</label>
-          <div class="text-xs text-gray-500 mb-3">Clique para selecionar os que combinam com seu público</div>
-          <div class="flex flex-wrap gap-2" id="interestChips">
-            <span class="chip" data-id="6003107902433" data-name="Marketing digital">Marketing digital</span>
-            <span class="chip" data-id="6003156285424" data-name="Empreendedorismo">Empreendedorismo</span>
-            <span class="chip" data-id="6003394288626" data-name="Negócios online">Negócios online</span>
-            <span class="chip" data-id="6003143238824" data-name="Educação online">Educação online</span>
-            <span class="chip" data-id="6003145439397" data-name="Investimentos">Investimentos</span>
-            <span class="chip" data-id="6003020834693" data-name="Desenvolvimento pessoal">Desenvolvimento pessoal</span>
-            <span class="chip" data-id="6003012461654" data-name="Renda extra">Renda extra</span>
-            <span class="chip" data-id="6003442557071" data-name="Freelancer">Freelancer</span>
-            <span class="chip" data-id="6003008082592" data-name="Saúde e bem-estar">Saúde e bem-estar</span>
-            <span class="chip" data-id="6004025286443" data-name="Fitness">Fitness</span>
-            <span class="chip" data-id="6002990220814" data-name="Culinária">Culinária</span>
-            <span class="chip" data-id="6003138096422" data-name="Fotografia">Fotografia</span>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="field">
+            <label>Idade mínima</label>
+            <select class="inp" id="ageMin">
+              <option value="18">18 anos</option>
+              <option value="21">21 anos</option>
+              <option value="25" selected>25 anos</option>
+              <option value="30">30 anos</option>
+              <option value="35">35 anos</option>
+              <option value="40">40 anos</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Idade máxima</label>
+            <select class="inp" id="ageMax">
+              <option value="35">35 anos</option>
+              <option value="40">40 anos</option>
+              <option value="45">45 anos</option>
+              <option value="50">50 anos</option>
+              <option value="55" selected>55 anos</option>
+              <option value="65">65 anos</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <!-- STEP 4: Revisão -->
+      <!-- STEP 4: Interesses e palavras-chave -->
       <div class="step" id="step4">
-        <h2 class="text-xl font-bold text-gray-900 mb-1">Revisar e criar</h2>
-        <p class="text-gray-500 text-sm mb-6">Confira os detalhes antes de criar a campanha</p>
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Interesses e palavras-chave</h2>
+        <p class="text-gray-400 text-sm mb-5">Ajuda o Meta a encontrar as pessoas certas</p>
 
-        <div class="bg-gray-50 rounded-xl p-5 space-y-3 text-sm mb-6" id="summaryBox">
+        <div class="section-title">Palavras-chave do seu público</div>
+        <div class="field">
+          <label>O que seu público pesquisa ou fala? (aperte Enter para adicionar)</label>
+          <div class="tag-input-wrap" id="keywordsWrap" onclick="document.getElementById('keywordInput').focus()">
+            <input id="keywordInput" placeholder="Ex: marketing digital, renda extra..." onkeydown="handleKeyword(event)">
+          </div>
+          <div class="hint">Essas palavras ajudam a descrever seu público para o Meta</div>
         </div>
 
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-          <strong>Próximo passo:</strong> A campanha será criada <strong>pausada</strong>. Você vai precisar adicionar o criativo (imagem ou vídeo + texto) no Meta Ads Manager antes de ativar.
+        <div class="section-title">Interesses predefinidos — clique para selecionar</div>
+
+        <div class="mb-2 text-xs font-semibold text-gray-500">💼 Negócios e empreendedorismo</div>
+        <div class="flex flex-wrap gap-2 mb-4" id="chips-negocios">
+          <span class="chip" data-id="6003107902433" data-name="Marketing digital">Marketing digital</span>
+          <span class="chip" data-id="6003156285424" data-name="Empreendedorismo">Empreendedorismo</span>
+          <span class="chip" data-id="6003394288626" data-name="Negócios online">Negócios online</span>
+          <span class="chip" data-id="6003012461654" data-name="Renda extra">Renda extra</span>
+          <span class="chip" data-id="6003442557071" data-name="Freelancer">Freelancer</span>
+          <span class="chip" data-id="6003145439397" data-name="Investimentos">Investimentos</span>
+          <span class="chip" data-id="6002998748753" data-name="E-commerce">E-commerce</span>
+          <span class="chip" data-id="6003203369748" data-name="Vendas">Vendas</span>
+          <span class="chip" data-id="6002976272155" data-name="Copywriting">Copywriting</span>
+          <span class="chip" data-id="6003269284859" data-name="Social media">Social media</span>
+        </div>
+
+        <div class="mb-2 text-xs font-semibold text-gray-500">📚 Educação e desenvolvimento</div>
+        <div class="flex flex-wrap gap-2 mb-4" id="chips-educacao">
+          <span class="chip" data-id="6003143238824" data-name="Educação online">Educação online</span>
+          <span class="chip" data-id="6003020834693" data-name="Desenvolvimento pessoal">Desenvolvimento pessoal</span>
+          <span class="chip" data-id="6002964965099" data-name="Liderança">Liderança</span>
+          <span class="chip" data-id="6003109981714" data-name="Produtividade">Produtividade</span>
+          <span class="chip" data-id="6002983868735" data-name="Cursos online">Cursos online</span>
+          <span class="chip" data-id="6003116461753" data-name="Coaching">Coaching</span>
+          <span class="chip" data-id="6003008082592" data-name="Motivação">Motivação</span>
+          <span class="chip" data-id="6003227001154" data-name="Mentoria">Mentoria</span>
+        </div>
+
+        <div class="mb-2 text-xs font-semibold text-gray-500">💪 Saúde, fitness e bem-estar</div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="chip" data-id="6004025286443" data-name="Fitness">Fitness</span>
+          <span class="chip" data-id="6003008082592" data-name="Saúde e bem-estar">Saúde e bem-estar</span>
+          <span class="chip" data-id="6002973348099" data-name="Emagrecimento">Emagrecimento</span>
+          <span class="chip" data-id="6003153987908" data-name="Nutrição">Nutrição</span>
+          <span class="chip" data-id="6003002985745" data-name="Yoga">Yoga</span>
+          <span class="chip" data-id="6003379241965" data-name="Meditação">Meditação</span>
+          <span class="chip" data-id="6002910734378" data-name="Musculação">Musculação</span>
+        </div>
+
+        <div class="mb-2 text-xs font-semibold text-gray-500">🎨 Criatividade e hobbies</div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="chip" data-id="6003138096422" data-name="Fotografia">Fotografia</span>
+          <span class="chip" data-id="6002990220814" data-name="Culinária">Culinária</span>
+          <span class="chip" data-id="6003397667779" data-name="Música">Música</span>
+          <span class="chip" data-id="6003267784813" data-name="Design gráfico">Design gráfico</span>
+          <span class="chip" data-id="6002984101886" data-name="Artesanato">Artesanato</span>
+          <span class="chip" data-id="6003384254819" data-name="Escrita criativa">Escrita criativa</span>
+          <span class="chip" data-id="6003248201664" data-name="Tecnologia">Tecnologia</span>
+        </div>
+
+        <div class="mb-2 text-xs font-semibold text-gray-500">👨‍👩‍👧 Família e estilo de vida</div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="chip" data-id="6002910733165" data-name="Família">Família</span>
+          <span class="chip" data-id="6003027366869" data-name="Maternidade">Maternidade</span>
+          <span class="chip" data-id="6003201620148" data-name="Moda">Moda</span>
+          <span class="chip" data-id="6002910718677" data-name="Viagens">Viagens</span>
+          <span class="chip" data-id="6003347293611" data-name="Decoração">Decoração</span>
+          <span class="chip" data-id="6003022213891" data-name="Finanças pessoais">Finanças pessoais</span>
+          <span class="chip" data-id="6002910737438" data-name="Relacionamentos">Relacionamentos</span>
         </div>
       </div>
 
-      <!-- STEP 5: Sucesso -->
+      <!-- STEP 5: Revisão -->
       <div class="step" id="step5">
-        <div class="text-center py-4">
-          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <h2 class="text-xl font-bold text-gray-900 mb-2">Campanha criada!</h2>
-          <p class="text-gray-500 text-sm mb-6">A estrutura foi criada no Meta Ads. Agora adicione o criativo para ativar.</p>
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Revisar e criar</h2>
+        <p class="text-gray-400 text-sm mb-5">Confira antes de criar a campanha no Meta Ads</p>
+        <div class="bg-gray-50 rounded-xl p-5 space-y-2.5 text-sm mb-5" id="summaryBox"></div>
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+          <strong>O que acontece depois:</strong> A campanha será criada <strong>pausada</strong>. Você vai adicionar a imagem/vídeo e o texto do anúncio no Meta Ads Manager antes de ativar.
+        </div>
+      </div>
 
-          <a id="adsManagerLink" href="#" target="_blank"
-            class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition mb-4">
+      <!-- STEP 6: Sucesso -->
+      <div class="step" id="step6">
+        <div class="text-center py-6">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🎉</div>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Campanha criada no Meta Ads!</h2>
+          <p class="text-gray-500 text-sm mb-6">Agora adicione o criativo (imagem ou vídeo + texto) para ativar.</p>
+          <a id="adsManagerLink" href="#" target="_blank" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition mb-4 text-sm">
             Abrir no Meta Ads Manager →
           </a>
           <br>
-          <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Voltar ao painel</a>
+          <a href="/" class="text-sm text-gray-400 hover:text-gray-600 mt-3 inline-block">← Voltar ao painel</a>
         </div>
       </div>
 
-      <!-- Navigation -->
+      <!-- Nav -->
       <div class="flex justify-between mt-8" id="navButtons">
-        <button class="btn-ghost" id="btnBack" onclick="prevStep()" style="display:none">← Voltar</button>
-        <button class="btn-primary ml-auto" id="btnNext" onclick="nextStep()">Próximo →</button>
+        <button onclick="prevStep()" id="btnBack" class="px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-800 rounded-xl hover:bg-gray-100 transition" style="display:none">← Voltar</button>
+        <button onclick="nextStep()" id="btnNext" class="ml-auto px-6 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition disabled:opacity-50">Próximo →</button>
       </div>
-
     </div>
   </div>
 </div>
@@ -228,49 +303,55 @@
 const SUPABASE_URL = 'https://tvbouailesbnqdbzkkfl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_HwAohKJ-ZTCtRGNVES9uQA_AsAUreu-';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+const STEPS = 5;
 let currentStep = 1;
-const totalSteps = 4;
+const keywords = [];
 
-// Set default start date to tomorrow
-const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-document.getElementById('startDate').value = tomorrow.toISOString().split('T')[0];
+// Default date
+const d = new Date(); d.setDate(d.getDate()+1);
+document.getElementById('startDate').value = d.toISOString().split('T')[0];
 
-// Interest chips
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => chip.classList.toggle('selected'));
-});
-
-// Type radio
-document.querySelectorAll('.type-option').forEach(opt => {
-  opt.addEventListener('click', () => {
-    const val = opt.dataset.value;
-    document.getElementById('urlField').classList.toggle('hidden', val !== 'traffic');
-  });
-});
-
-function updateProgress() {
-  const pct = (currentStep / totalSteps) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('stepLabel').textContent = `Passo ${currentStep} de ${totalSteps}`;
-  const names = ['Tipo de campanha','Produto e orçamento','Público-alvo','Revisão'];
-  document.getElementById('stepName').textContent = names[currentStep - 1] ?? 'Concluído';
-  document.getElementById('btnBack').style.display = currentStep > 1 ? 'block' : 'none';
-  const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = currentStep === totalSteps ? 'Criar campanha 🚀' : 'Próximo →';
+// Option cards
+function selectOption(el, name, value) {
+  document.querySelectorAll(`[name="${name}"]`).forEach(r => r.closest('.option-card')?.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  if (name === 'type') document.getElementById('urlFieldWrap').classList.toggle('hidden', value !== 'traffic');
 }
+document.querySelector('.option-card').classList.add('selected');
 
-function showStep(n) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step' + n)?.classList.add('active');
-  if (n === 5) document.getElementById('navButtons').style.display = 'none';
+// Chips
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('selected')));
+
+// Keywords
+function handleKeyword(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val && !keywords.includes(val)) {
+      keywords.push(val);
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill';
+      pill.innerHTML = `${val} <button onclick="removeKeyword('${val}', this.parentElement)">×</button>`;
+      document.getElementById('keywordsWrap').insertBefore(pill, e.target);
+    }
+    e.target.value = '';
+  }
+}
+function removeKeyword(val, el) { keywords.splice(keywords.indexOf(val),1); el.remove(); }
+
+function updateNav() {
+  const isLast = currentStep === STEPS;
+  document.getElementById('btnBack').style.display = currentStep > 1 ? 'block' : 'none';
+  document.getElementById('btnNext').textContent = isLast ? '🚀 Criar campanha' : 'Próximo →';
+  document.getElementById('stepCounter').textContent = `Passo ${currentStep} de ${STEPS}`;
+  document.getElementById('progressFill').style.width = `${(currentStep/STEPS)*100}%`;
 }
 
 function validate() {
   if (currentStep === 2) {
     if (!document.getElementById('productName').value.trim()) { alert('Digite o nome do produto'); return false; }
-    const budget = parseFloat(document.getElementById('dailyBudget').value);
-    if (!budget || budget < 6) { alert('Orçamento mínimo é R$ 6/dia'); return false; }
+    if (!document.getElementById('dailyBudget').value || parseFloat(document.getElementById('dailyBudget').value) < 10) { alert('Orçamento mínimo: R$ 10/dia'); return false; }
     if (!document.getElementById('startDate').value) { alert('Selecione a data de início'); return false; }
   }
   return true;
@@ -278,54 +359,57 @@ function validate() {
 
 function buildSummary() {
   const type = document.querySelector('input[name="type"]:checked').value;
-  const product = document.getElementById('productName').value;
-  const budget = document.getElementById('dailyBudget').value;
-  const start = document.getElementById('startDate').value;
-  const end = document.getElementById('endDate').value;
-  const age = `${document.getElementById('ageMin').value}–${document.getElementById('ageMax').value} anos`;
-  const loc = document.getElementById('locationSelect').options[document.getElementById('locationSelect').selectedIndex].text;
-  const interests = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.name).join(', ') || 'Nenhum selecionado';
+  const audience = document.querySelector('input[name="audience"]:checked').value;
+  const audienceLabel = { cold: '🧊 Frio (novo público)', warm: '🔥 Quente (seguidores)', retargeting: '🎯 Retargeting' }[audience];
+  const loc = document.getElementById('locationSelect');
+  const gender = document.getElementById('genderSelect');
+  const interests = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.name).join(', ') || 'Amplo';
+  const kws = keywords.join(', ') || '—';
+  const typeLabel = { leads: '📋 Captar leads', traffic: '🌐 Tráfego', engagement: '❤️ Engajamento' }[type];
 
   document.getElementById('summaryBox').innerHTML = `
-    <div class="flex justify-between"><span class="text-gray-500">Objetivo</span><span class="font-medium">${type === 'leads' ? 'Captar leads' : 'Tráfego'}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Produto</span><span class="font-medium">${product}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Orçamento</span><span class="font-medium">R$ ${budget}/dia</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Período</span><span class="font-medium">${start}${end ? ' → ' + end : ' (contínuo)'}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Local</span><span class="font-medium">${loc}</span></div>
-    <div class="flex justify-between"><span class="text-gray-500">Idade</span><span class="font-medium">${age}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Objetivo</span><span class="font-medium">${typeLabel}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Produto</span><span class="font-medium">${document.getElementById('productName').value}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Orçamento</span><span class="font-medium">R$ ${document.getElementById('dailyBudget').value}/dia</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Período</span><span class="font-medium">${document.getElementById('startDate').value}${document.getElementById('endDate').value ? ' → '+document.getElementById('endDate').value : ' (contínuo)'}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Público</span><span class="font-medium">${audienceLabel}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Local</span><span class="font-medium">${loc.options[loc.selectedIndex].text}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Idade</span><span class="font-medium">${document.getElementById('ageMin').value}–${document.getElementById('ageMax').value} anos · ${gender.options[gender.selectedIndex].text}</span></div>
     <div class="flex justify-between"><span class="text-gray-500">Interesses</span><span class="font-medium text-right max-w-xs">${interests}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Palavras-chave</span><span class="font-medium text-right max-w-xs">${kws}</span></div>
   `;
 }
 
 async function nextStep() {
   if (!validate()) return;
-  if (currentStep === totalSteps - 1) buildSummary();
-  if (currentStep === totalSteps) { await createCampaign(); return; }
+  if (currentStep === STEPS) { await createCampaign(); return; }
+  if (currentStep === STEPS - 1) buildSummary();
   currentStep++;
-  showStep(currentStep);
-  updateProgress();
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateNav();
+  window.scrollTo(0,0);
 }
 
 function prevStep() {
   if (currentStep <= 1) return;
   currentStep--;
-  showStep(currentStep);
-  updateProgress();
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateNav();
+  window.scrollTo(0,0);
 }
 
 async function createCampaign() {
   const btn = document.getElementById('btnNext');
-  btn.disabled = true;
-  btn.textContent = 'Criando campanha...';
-
+  btn.disabled = true; btn.textContent = 'Criando...';
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = '/'; return; }
 
     const type = document.querySelector('input[name="type"]:checked').value;
-    const locVal = document.getElementById('locationSelect').value;
-    const locations = locVal === 'BR' ? [] : [{ key: locVal, type: 'region' }];
     const interests = [...document.querySelectorAll('.chip.selected')].map(c => ({ id: c.dataset.id, name: c.dataset.name }));
+    const audience = document.querySelector('input[name="audience"]:checked').value;
 
     const payload = {
       productName: document.getElementById('productName').value.trim(),
@@ -334,10 +418,13 @@ async function createCampaign() {
       endDate: document.getElementById('endDate').value || null,
       ageMin: parseInt(document.getElementById('ageMin').value),
       ageMax: parseInt(document.getElementById('ageMax').value),
-      locations,
+      gender: parseInt(document.getElementById('genderSelect').value),
+      location: document.getElementById('locationSelect').value,
       interests,
+      keywords,
+      audienceType: audience,
       campaignType: type,
-      destinationUrl: document.getElementById('destinationUrl')?.value || '',
+      destinationUrl: document.getElementById('destinationUrl').value || '',
     };
 
     const res = await fetch('https://tvbouailesbnqdbzkkfl.supabase.co/functions/v1/meta-create-campaign', {
@@ -345,26 +432,23 @@ async function createCampaign() {
       headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
     const json = await res.json();
     if (!json.ok) throw new Error(json.error ?? 'Erro desconhecido');
 
     document.getElementById('adsManagerLink').href = json.adsManagerUrl;
-    showStep(5);
+    document.getElementById('navButtons').style.display = 'none';
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step6').classList.add('active');
+    document.getElementById('progressFill').style.width = '100%';
 
   } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Criar campanha 🚀';
+    btn.disabled = false; btn.textContent = '🚀 Criar campanha';
     alert('Erro: ' + err.message);
   }
 }
 
-// Check auth
-sb.auth.getSession().then(({ data: { session } }) => {
-  if (!session) window.location.href = '/';
-});
-
-updateProgress();
+sb.auth.getSession().then(({ data: { session } }) => { if (!session) window.location.href = '/'; });
+updateNav();
 </script>
 </body>
 </html>

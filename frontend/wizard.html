@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova Campanha — Tráfego Pago</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  body { background: #faf9f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .step { display: none; }
+  .step.active { display: block; }
+  input, select, textarea { outline: none; }
+  input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .btn-primary { background: #6366f1; color: white; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-primary:disabled { background: #a5b4fc; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: #6b7280; padding: 12px 24px; border-radius: 10px; font-weight: 500; cursor: pointer; border: none; }
+  .btn-ghost:hover { background: #f3f4f6; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: #f3f4f6; border: 1.5px solid #e5e7eb; border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .chip.selected { background: #eef2ff; border-color: #6366f1; color: #4f46e5; font-weight: 600; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+  .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #111827; background: white; transition: all 0.2s; }
+  .progress-bar { height: 4px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #6366f1; border-radius: 4px; transition: width 0.4s; }
+</style>
+</head>
+<body>
+
+<div class="min-h-screen flex items-start justify-center pt-10 pb-16 px-4">
+  <div class="w-full max-w-xl">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-8">
+      <a href="/" class="text-gray-400 hover:text-gray-600 text-sm flex items-center gap-1">
+        ← Voltar ao painel
+      </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+
+      <!-- Progress -->
+      <div class="mb-8">
+        <div class="flex justify-between text-xs text-gray-400 mb-2">
+          <span id="stepLabel">Passo 1 de 4</span>
+          <span id="stepName">Tipo de campanha</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:25%"></div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Tipo -->
+      <div class="step active" id="step1">
+        <h2 class="text-xl font-bold text-gray-900 mb-1">O que você quer alcançar?</h2>
+        <p class="text-gray-500 text-sm mb-6">Escolha o objetivo principal da campanha</p>
+
+        <div class="space-y-3" id="typeOptions">
+          <label class="flex items-start gap-4 p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-indigo-200 transition type-option" data-value="leads">
+            <input type="radio" name="type" value="leads" class="mt-1 accent-indigo-600" checked>
+            <div>
+              <div class="font-semibold text-gray-900">Captar leads</div>
+              <div class="text-sm text-gray-500 mt-0.5">Formulário dentro do Facebook/Instagram — sem precisar de site ou pixel. Ideal para lançamentos.</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-4 p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-indigo-200 transition type-option" data-value="traffic">
+            <input type="radio" name="type" value="traffic" class="mt-1 accent-indigo-600">
+            <div>
+              <div class="font-semibold text-gray-900">Tráfego para página</div>
+              <div class="text-sm text-gray-500 mt-0.5">Levar pessoas para sua página no Hotmart, Hostgator ou outro link.</div>
+            </div>
+          </label>
+        </div>
+
+        <div id="urlField" class="field mt-4 hidden">
+          <label>URL da página de destino</label>
+          <input type="url" id="destinationUrl" placeholder="https://..." />
+        </div>
+      </div>
+
+      <!-- STEP 2: Produto e orçamento -->
+      <div class="step" id="step2">
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Sobre o produto</h2>
+        <p class="text-gray-500 text-sm mb-6">Informações básicas da campanha</p>
+
+        <div class="field">
+          <label>Nome do produto ou lançamento *</label>
+          <input type="text" id="productName" placeholder="Ex: Curso de Marketing Digital 2025" maxlength="80" />
+          <div class="text-xs text-gray-400 mt-1">Esse nome aparece internamente no Meta Ads Manager</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="field">
+            <label>Orçamento diário (R$) *</label>
+            <input type="number" id="dailyBudget" placeholder="50" min="6" step="1" />
+            <div class="text-xs text-gray-400 mt-1">Mínimo R$ 6/dia</div>
+          </div>
+          <div class="field">
+            <label>Data de início *</label>
+            <input type="date" id="startDate" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Data de fim (opcional)</label>
+          <input type="date" id="endDate" />
+          <div class="text-xs text-gray-400 mt-1">Deixe em branco para campanha contínua</div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Público -->
+      <div class="step" id="step3">
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Quem você quer alcançar?</h2>
+        <p class="text-gray-500 text-sm mb-6">Configure o público-alvo</p>
+
+        <div class="field">
+          <label>Localização</label>
+          <select id="locationSelect">
+            <option value="BR">Todo o Brasil</option>
+            <option value="SP">São Paulo (estado)</option>
+            <option value="RJ">Rio de Janeiro (estado)</option>
+            <option value="MG">Minas Gerais (estado)</option>
+            <option value="RS">Rio Grande do Sul (estado)</option>
+            <option value="PR">Paraná (estado)</option>
+            <option value="SC">Santa Catarina (estado)</option>
+            <option value="BA">Bahia (estado)</option>
+            <option value="GO">Goiás (estado)</option>
+            <option value="DF">Distrito Federal</option>
+            <option value="CE">Ceará (estado)</option>
+            <option value="PE">Pernambuco (estado)</option>
+            <option value="AM">Amazonas (estado)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Faixa etária</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs text-gray-500 mb-1">Mínima</div>
+              <select id="ageMin">
+                <option value="18">18 anos</option>
+                <option value="21">21 anos</option>
+                <option value="25" selected>25 anos</option>
+                <option value="30">30 anos</option>
+                <option value="35">35 anos</option>
+                <option value="40">40 anos</option>
+              </select>
+            </div>
+            <div>
+              <div class="text-xs text-gray-500 mb-1">Máxima</div>
+              <select id="ageMax">
+                <option value="35">35 anos</option>
+                <option value="40">40 anos</option>
+                <option value="45">45 anos</option>
+                <option value="50">50 anos</option>
+                <option value="55" selected>55 anos</option>
+                <option value="65">65 anos</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Interesses (opcional)</label>
+          <div class="text-xs text-gray-500 mb-3">Clique para selecionar os que combinam com seu público</div>
+          <div class="flex flex-wrap gap-2" id="interestChips">
+            <span class="chip" data-id="6003107902433" data-name="Marketing digital">Marketing digital</span>
+            <span class="chip" data-id="6003156285424" data-name="Empreendedorismo">Empreendedorismo</span>
+            <span class="chip" data-id="6003394288626" data-name="Negócios online">Negócios online</span>
+            <span class="chip" data-id="6003143238824" data-name="Educação online">Educação online</span>
+            <span class="chip" data-id="6003145439397" data-name="Investimentos">Investimentos</span>
+            <span class="chip" data-id="6003020834693" data-name="Desenvolvimento pessoal">Desenvolvimento pessoal</span>
+            <span class="chip" data-id="6003012461654" data-name="Renda extra">Renda extra</span>
+            <span class="chip" data-id="6003442557071" data-name="Freelancer">Freelancer</span>
+            <span class="chip" data-id="6003008082592" data-name="Saúde e bem-estar">Saúde e bem-estar</span>
+            <span class="chip" data-id="6004025286443" data-name="Fitness">Fitness</span>
+            <span class="chip" data-id="6002990220814" data-name="Culinária">Culinária</span>
+            <span class="chip" data-id="6003138096422" data-name="Fotografia">Fotografia</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Revisão -->
+      <div class="step" id="step4">
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Revisar e criar</h2>
+        <p class="text-gray-500 text-sm mb-6">Confira os detalhes antes de criar a campanha</p>
+
+        <div class="bg-gray-50 rounded-xl p-5 space-y-3 text-sm mb-6" id="summaryBox">
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+          <strong>Próximo passo:</strong> A campanha será criada <strong>pausada</strong>. Você vai precisar adicionar o criativo (imagem ou vídeo + texto) no Meta Ads Manager antes de ativar.
+        </div>
+      </div>
+
+      <!-- STEP 5: Sucesso -->
+      <div class="step" id="step5">
+        <div class="text-center py-4">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Campanha criada!</h2>
+          <p class="text-gray-500 text-sm mb-6">A estrutura foi criada no Meta Ads. Agora adicione o criativo para ativar.</p>
+
+          <a id="adsManagerLink" href="#" target="_blank"
+            class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition mb-4">
+            Abrir no Meta Ads Manager →
+          </a>
+          <br>
+          <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Voltar ao painel</a>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex justify-between mt-8" id="navButtons">
+        <button class="btn-ghost" id="btnBack" onclick="prevStep()" style="display:none">← Voltar</button>
+        <button class="btn-primary ml-auto" id="btnNext" onclick="nextStep()">Próximo →</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://tvbouailesbnqdbzkkfl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_HwAohKJ-ZTCtRGNVES9uQA_AsAUreu-';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentStep = 1;
+const totalSteps = 4;
+
+// Set default start date to tomorrow
+const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+document.getElementById('startDate').value = tomorrow.toISOString().split('T')[0];
+
+// Interest chips
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('selected'));
+});
+
+// Type radio
+document.querySelectorAll('.type-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const val = opt.dataset.value;
+    document.getElementById('urlField').classList.toggle('hidden', val !== 'traffic');
+  });
+});
+
+function updateProgress() {
+  const pct = (currentStep / totalSteps) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('stepLabel').textContent = `Passo ${currentStep} de ${totalSteps}`;
+  const names = ['Tipo de campanha','Produto e orçamento','Público-alvo','Revisão'];
+  document.getElementById('stepName').textContent = names[currentStep - 1] ?? 'Concluído';
+  document.getElementById('btnBack').style.display = currentStep > 1 ? 'block' : 'none';
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = currentStep === totalSteps ? 'Criar campanha 🚀' : 'Próximo →';
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n)?.classList.add('active');
+  if (n === 5) document.getElementById('navButtons').style.display = 'none';
+}
+
+function validate() {
+  if (currentStep === 2) {
+    if (!document.getElementById('productName').value.trim()) { alert('Digite o nome do produto'); return false; }
+    const budget = parseFloat(document.getElementById('dailyBudget').value);
+    if (!budget || budget < 6) { alert('Orçamento mínimo é R$ 6/dia'); return false; }
+    if (!document.getElementById('startDate').value) { alert('Selecione a data de início'); return false; }
+  }
+  return true;
+}
+
+function buildSummary() {
+  const type = document.querySelector('input[name="type"]:checked').value;
+  const product = document.getElementById('productName').value;
+  const budget = document.getElementById('dailyBudget').value;
+  const start = document.getElementById('startDate').value;
+  const end = document.getElementById('endDate').value;
+  const age = `${document.getElementById('ageMin').value}–${document.getElementById('ageMax').value} anos`;
+  const loc = document.getElementById('locationSelect').options[document.getElementById('locationSelect').selectedIndex].text;
+  const interests = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.name).join(', ') || 'Nenhum selecionado';
+
+  document.getElementById('summaryBox').innerHTML = `
+    <div class="flex justify-between"><span class="text-gray-500">Objetivo</span><span class="font-medium">${type === 'leads' ? 'Captar leads' : 'Tráfego'}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Produto</span><span class="font-medium">${product}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Orçamento</span><span class="font-medium">R$ ${budget}/dia</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Período</span><span class="font-medium">${start}${end ? ' → ' + end : ' (contínuo)'}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Local</span><span class="font-medium">${loc}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Idade</span><span class="font-medium">${age}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Interesses</span><span class="font-medium text-right max-w-xs">${interests}</span></div>
+  `;
+}
+
+async function nextStep() {
+  if (!validate()) return;
+  if (currentStep === totalSteps - 1) buildSummary();
+  if (currentStep === totalSteps) { await createCampaign(); return; }
+  currentStep++;
+  showStep(currentStep);
+  updateProgress();
+}
+
+function prevStep() {
+  if (currentStep <= 1) return;
+  currentStep--;
+  showStep(currentStep);
+  updateProgress();
+}
+
+async function createCampaign() {
+  const btn = document.getElementById('btnNext');
+  btn.disabled = true;
+  btn.textContent = 'Criando campanha...';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/'; return; }
+
+    const type = document.querySelector('input[name="type"]:checked').value;
+    const locVal = document.getElementById('locationSelect').value;
+    const locations = locVal === 'BR' ? [] : [{ key: locVal, type: 'region' }];
+    const interests = [...document.querySelectorAll('.chip.selected')].map(c => ({ id: c.dataset.id, name: c.dataset.name }));
+
+    const payload = {
+      productName: document.getElementById('productName').value.trim(),
+      dailyBudget: parseFloat(document.getElementById('dailyBudget').value),
+      startDate: document.getElementById('startDate').value,
+      endDate: document.getElementById('endDate').value || null,
+      ageMin: parseInt(document.getElementById('ageMin').value),
+      ageMax: parseInt(document.getElementById('ageMax').value),
+      locations,
+      interests,
+      campaignType: type,
+      destinationUrl: document.getElementById('destinationUrl')?.value || '',
+    };
+
+    const res = await fetch('https://tvbouailesbnqdbzkkfl.supabase.co/functions/v1/meta-create-campaign', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error ?? 'Erro desconhecido');
+
+    document.getElementById('adsManagerLink').href = json.adsManagerUrl;
+    showStep(5);
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Criar campanha 🚀';
+    alert('Erro: ' + err.message);
+  }
+}
+
+// Check auth
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (!session) window.location.href = '/';
+});
+
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instagram — Tráfego Pago</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  body { background: #faf9f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .card { background: white; border-radius: 16px; border: 1px solid #f0f0f0; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  .stat-card { padding: 20px 24px; }
+  .ig-gradient { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+  .post-thumb { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #f3f4f6; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="min-h-screen">
+
+  <!-- Header -->
+  <div class="ig-gradient px-6 pt-10 pb-16">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center justify-between mb-6">
+        <a href="/" class="text-white/70 hover:text-white text-sm transition">← Voltar ao painel</a>
+        <span id="syncTime" class="text-white/60 text-xs">Sincronizado agora</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-2xl">📸</div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">@liberofilho</h1>
+          <p class="text-white/70 text-sm">Líbero Alves Rodrigues Filho · Instagram</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 -mt-8 pb-16">
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">Seguidores</div>
+        <div class="text-2xl font-bold text-gray-900">46.386</div>
+        <div class="text-xs text-green-600 font-medium mt-1">+1.198 nos últimos 30 dias</div>
+      </div>
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">Visualizações (30d)</div>
+        <div class="text-2xl font-bold text-gray-900" id="totalViews">—</div>
+        <div class="text-xs text-gray-400 mt-1">posts + reels + stories</div>
+      </div>
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">Alcance (30d)</div>
+        <div class="text-2xl font-bold text-gray-900" id="totalReach">—</div>
+        <div class="text-xs text-gray-400 mt-1">contas únicas alcançadas</div>
+      </div>
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">Interações (30d)</div>
+        <div class="text-2xl font-bold text-gray-900" id="totalInteractions">—</div>
+        <div class="text-xs text-gray-400 mt-1">curtidas + comentários + mais</div>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">❤️ Curtidas</div>
+        <div class="text-xl font-bold text-gray-900" id="totalLikes">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">💬 Comentários</div>
+        <div class="text-xl font-bold text-gray-900" id="totalComments">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">↗️ Compartilhamentos</div>
+        <div class="text-xl font-bold text-gray-900" id="totalShares">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="text-xs text-gray-400 font-medium mb-1">🔖 Salvamentos</div>
+        <div class="text-xl font-bold text-gray-900" id="totalSaves">—</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-gray-900">Desempenho diário — últimos 30 dias</h2>
+        <div class="flex gap-3 text-xs">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span>Visualizações</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-pink-400 inline-block"></span>Alcance</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>Interações</span>
+        </div>
+      </div>
+      <div style="height:240px"><canvas id="igChart"></canvas></div>
+    </div>
+
+    <!-- Top Posts -->
+    <div class="card p-6">
+      <h2 class="font-semibold text-gray-900 mb-4">Posts recentes — últimos 30 dias</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="postsGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://tvbouailesbnqdbzkkfl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_HwAohKJ-ZTCtRGNVES9uQA_AsAUreu-';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+supabase.createClient(SUPABASE_URL, SUPABASE_KEY).auth.getSession().then(({ data: { session } }) => { if (!session) window.location.href = '/'; });
+
+const dailyData = [
+  {date:"2026-07-12",views:39292,reach:4714,interactions:574,likes:536,comments:0,shares:21,saves:0},
+  {date:"2026-07-13",views:31164,reach:5548,interactions:537,likes:438,comments:12,shares:37,saves:1},
+  {date:"2026-07-14",views:98819,reach:11700,interactions:1746,likes:1277,comments:230,shares:75,saves:31},
+  {date:"2026-07-15",views:129912,reach:18602,interactions:3291,likes:2127,comments:191,shares:389,saves:74},
+  {date:"2026-07-16",views:34827,reach:6339,interactions:575,likes:379,comments:39,shares:61,saves:14},
+  {date:"2026-07-17",views:50840,reach:10081,interactions:2342,likes:1329,comments:275,shares:160,saves:378},
+  {date:"2026-07-18",views:30575,reach:6538,interactions:961,likes:733,comments:48,shares:53,saves:60},
+  {date:"2026-07-19",views:6030,reach:2249,interactions:176,likes:130,comments:21,shares:9,saves:8},
+  {date:"2026-07-20",views:40421,reach:10863,interactions:1257,likes:884,comments:104,shares:79,saves:91},
+  {date:"2026-07-21",views:60416,reach:7260,interactions:1273,likes:973,comments:86,shares:41,saves:42},
+  {date:"2026-07-22",views:60936,reach:6079,interactions:1457,likes:1048,comments:322,shares:30,saves:19},
+  {date:"2026-07-23",views:19303,reach:6369,interactions:611,likes:436,comments:71,shares:30,saves:36},
+  {date:"2026-07-24",views:25341,reach:7353,interactions:676,likes:612,comments:19,shares:18,saves:11},
+  {date:"2026-07-25",views:67218,reach:15534,interactions:1897,likes:1728,comments:33,shares:35,saves:21},
+  {date:"2026-07-26",views:47373,reach:20764,interactions:928,likes:748,comments:66,shares:20,saves:42},
+  {date:"2026-07-27",views:16793,reach:8194,interactions:415,likes:298,comments:18,shares:36,saves:18},
+  {date:"2026-07-28",views:15226,reach:4532,interactions:212,likes:168,comments:7,shares:10,saves:6},
+  {date:"2026-07-29",views:38717,reach:9002,interactions:765,likes:600,comments:96,shares:18,saves:12},
+  {date:"2026-07-30",views:36509,reach:5816,interactions:1634,likes:1053,comments:71,shares:229,saves:54},
+  {date:"2026-07-31",views:36584,reach:4324,interactions:1549,likes:998,comments:48,shares:233,saves:29},
+  {date:"2026-08-01",views:24494,reach:4443,interactions:497,likes:327,comments:17,shares:63,saves:18},
+  {date:"2026-08-02",views:12876,reach:5406,interactions:194,likes:166,comments:6,shares:12,saves:0},
+  {date:"2026-08-03",views:16253,reach:5284,interactions:386,likes:300,comments:30,shares:18,saves:18},
+  {date:"2026-08-04",views:51659,reach:11447,interactions:1635,likes:1345,comments:81,shares:84,saves:3},
+  {date:"2026-08-05",views:18804,reach:5668,interactions:467,likes:367,comments:11,shares:38,saves:4},
+  {date:"2026-08-06",views:9673,reach:3122,interactions:150,likes:129,comments:2,shares:4,saves:2},
+  {date:"2026-08-07",views:21884,reach:5138,interactions:286,likes:223,comments:8,shares:16,saves:15},
+  {date:"2026-08-08",views:65039,reach:20048,interactions:2756,likes:2676,comments:5,shares:19,saves:22},
+  {date:"2026-08-09",views:9731,reach:3279,interactions:208,likes:193,comments:2,shares:2,saves:3},
+  {date:"2026-08-10",views:72349,reach:27903,interactions:4644,likes:3228,comments:23,shares:377,saves:454},
+];
+
+const posts = [
+  {type:"IMAGE",caption:"Escolha hoje as renúncias que te premiarão amanhã",thumb:"https://scontent-fra3-1.cdninstagram.com/v/t51.82787-15/772171170_18612302626041058_619179606702475301_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=KeMTKgn0BJAQ7kNvwGjd3Kc&_nc_oc=AdoxvW5zDJ6cOm2m-wDAWUqK1zQbSRsIZv8oZO-zk03WXczPdTWAr_TPluASbrKOROg&_nc_zt=23&_nc_ht=scontent-fra3-1.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQGIhgk8FHZe_yShk6RiL36wzeNCa20nq_dG07qJVGeqyg&oe=6A80EA05",link:"https://www.instagram.com/p/Db3WPhcOFpo/",likes:3210,comments:20,reach:27075,views:55539,saves:458,shares:385},
+  {type:"CAROUSEL_ALBUM",caption:"Um ano do pior dia da minha vida...",thumb:"https://scontent-fra3-1.cdninstagram.com/v/t51.82787-15/769345656_18611537056041058_1005045038434351973_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=VLviam9FrhoQ7kNvwFqnY4o&_nc_oc=Adqh8bY1qKyxSVNlUI-6M8fw-uW2CV9eu87WMYY9QyMM3jAfIHPKtNPvkzGzfnzcQHg&_nc_zt=23&_nc_ht=scontent-fra3-1.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQFJdA7F2XjR9Tr_YZKgHMB84TSG6diIuChuO3lM_RR3sA&oe=6A80C90A",link:"https://www.instagram.com/p/DbxhPn-HKz7/",likes:2747,comments:0,reach:21292,views:56986,saves:25,shares:14},
+  {type:"REELS",caption:"Agora assumirei um novo cartório, meus amigos 🥹🙏🏽🤩",thumb:"https://scontent-fra5-1.cdninstagram.com/v/t51.71878-15/765036424_1506728474831691_6675937411680938262_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=7D6kNdr-44YQ7kNvwGxXlBF&_nc_oc=AdqkNkX28ZrJjaF9qFWFD8ODBM_bSvmXji7oJt5We6VEcm04mJih7XrACWketfbs4eo&_nc_zt=23&_nc_ht=scontent-fra5-1.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQHC_TLfFdkoM0DGS5tnshkWQfOOdK5-97mUp2dNLBoBfQ&oe=6A80DC27",link:"https://www.instagram.com/reel/DboI4ONp09u/",likes:1134,comments:79,reach:11917,views:25192,saves:19,shares:53},
+  {type:"CAROUSEL_ALBUM",caption:"Listei os documentos que vocês pediram ✅",thumb:"https://scontent-fra5-2.cdninstagram.com/v/t51.82787-15/749493006_18604784590041058_5903160239262607526_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=AqqLQGlk-gIQ7kNvwEmR84n&_nc_oc=Adpx3B3Oj4g5sWaoQ843HuMFNzvMGmeBcYa5asIz95aRXyI_eI1ZMpDVdhwLI17KmrU&_nc_zt=23&_nc_ht=scontent-fra5-2.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQEFycJJKnvwAtvDRHTBC3SOVG7KoL-LJlw_I4b25QbTUA&oe=6A80ED93",link:"https://www.instagram.com/p/Da57677GfAj/",likes:914,comments:330,reach:11526,views:30510,saves:516,shares:199},
+  {type:"REELS",caption:"Quem ai? 🤣🤣🤣",thumb:"https://scontent-fra3-1.cdninstagram.com/v/t51.82787-15/745359126_18604109326041058_8268049342025654429_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=LESMlvi9-r8Q7kNvwHU-V_w&_nc_oc=AdqtfjHXYBBkEqNL-W-PHUeKyxLXjjX_iSYEtHIXpurWIBSvH0wIQLdK8dxWVu4iZHU&_nc_zt=23&_nc_ht=scontent-fra3-1.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQGpYbOGtOyOsl0nUjmOShmNyln7wKx1j-UdS-zXC5TjsQ&oe=6A80EA7F",link:"https://www.instagram.com/reel/Da0QJS2ujHL/",likes:1675,comments:100,reach:18468,views:27206,saves:84,shares:396},
+  {type:"CAROUSEL_ALBUM",caption:"Concluindo nossa série de fotos — Paris 🗼",thumb:"https://scontent-fra5-1.cdninstagram.com/v/t51.82787-15/755246270_18607287916041058_3097068126036837995_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=aC0xDnio4RMQ7kNvwEb_umD&_nc_oc=AdqPoOhjNxJXDtgz2yLrDjJoWk9DUL54vprWKkq7CCTYyUvP3bcf2Ni3ML1ONCOR4Cs&_nc_zt=23&_nc_ht=scontent-fra5-1.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQFhgjwJRSAOjNEmHCiu4uxwEjKOX6rIhISHTUxf2M8IMg&oe=6A80C5EA",link:"https://www.instagram.com/p/DbPEL--jkWd/",likes:1450,comments:12,reach:11920,views:29799,saves:6,shares:5},
+  {type:"IMAGE",caption:"🥹🥹",thumb:"https://scontent-fra5-2.cdninstagram.com/v/t51.82787-15/754046675_18607137703041058_1627607160159619381_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=45NkHYzHYoQQ7kNvwFf5TTP&_nc_oc=AdpBPX-Tu1MykPhxQraCvwhYlwHcTdfZhdYB_6TRViNFMLn2KXnAz2agXrJOT0i_XdM&_nc_zt=23&_nc_ht=scontent-fra5-2.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQF_H_DA1EJ5x0YD0KVZ8F1SZT37HpERPKH3KJ6Xya48uA&oe=6A80C0C2",link:"https://www.instagram.com/p/DbOCRFqOLQP/",likes:511,comments:23,reach:13663,views:29200,saves:14,shares:26},
+  {type:"IMAGE",caption:"Recordando momentos marcantes 🤩",thumb:"https://scontent-fra3-1.cdninstagram.com/v/t51.82787-15/751819366_18605763769041058_1622596809080139000_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=24wV1ihHvqQQ7kNvwHTVnY-&_nc_oc=AdoN1x032yGZ51rP-_-hPAH9jKtCEfAHHemwT7pFAX1XarzYk65SCwIQFYWxuvcOMEE&_nc_zt=23&_nc_ht=scontent-fra3-1.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=gp3ZeW8s0i0IfMFSpFIfAA&oh=00_AQHfizZExeZkXBY3HBfwALpIkjZV0LEV_LUmlucd-nb4Ig&oe=6A80DE89",link:"https://www.instagram.com/p/DbB0R3ghNZ2/",likes:678,comments:41,reach:8843,views:17579,saves:4,shares:46},
+];
+
+function fmt(n) {
+  if (n>=1000000) return (n/1000000).toFixed(1)+'M';
+  if (n>=1000) return (n/1000).toFixed(1)+'k';
+  return n.toLocaleString('pt-BR');
+}
+function typeIcon(t){return t==='REELS'?'🎦':t==='CAROUSEL_ALBUM'?'🖼️':'📷';}
+function typeBg(t){return t==='REELS'?'bg-purple-100 text-purple-700':t==='CAROUSEL_ALBUM'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600';}
+function typeLabel(t){return t==='REELS'?'Reel':t==='CAROUSEL_ALBUM'?'Carrossel':'Foto';}
+
+const totals=dailyData.reduce((a,d)=>({views:a.views+d.views,reach:a.reach+d.reach,interactions:a.interactions+d.interactions,likes:a.likes+d.likes,comments:a.comments+d.comments,shares:a.shares+d.shares,saves:a.saves+Math.max(0,d.saves)}),{views:0,reach:0,interactions:0,likes:0,comments:0,shares:0,saves:0});
+document.getElementById('totalViews').textContent=fmt(totals.views);
+document.getElementById('totalReach').textContent=fmt(totals.reach);
+document.getElementById('totalInteractions').textContent=fmt(totals.interactions);
+document.getElementById('totalLikes').textContent=fmt(totals.likes);
+document.getElementById('totalComments').textContent=fmt(totals.comments);
+document.getElementById('totalShares').textContent=fmt(totals.shares);
+document.getElementById('totalSaves').textContent=fmt(totals.saves);
+
+const labels=dailyData.map(d=>{const[,,day]=d.date.split('-');return parseInt(day)+'/'+parseInt(d.date.split('-')[1]);});
+new Chart(document.getElementById('igChart'),{type:'line',data:{labels,datasets:[
+  {label:'Visualizações',data:dailyData.map(d=>d.views),borderColor:'#9333ea',backgroundColor:'rgba(147,51,234,.08)',tension:0.4,pointRadius:2,borderWidth:2,fill:true},
+  {label:'Alcance',data:dailyData.map(d=>d.reach),borderColor:'#f472b6',backgroundColor:'transparent',tension:0.4,pointRadius:2,borderWidth:2,borderDash:[4,2]},
+  {label:'Interações',data:dailyData.map(d=>d.interactions),borderColor:'#fbbf24',backgroundColor:'transparent',tension:0.4,pointRadius:2,borderWidth:2,borderDash:[2,2]},
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:10}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10},callback:v=>fmt(v)}}}}});
+
+const grid=document.getElementById('postsGrid');
+posts.forEach(p=>{
+  const eng=p.reach>0?((p.likes+p.comments+p.saves+p.shares)/p.reach*100).toFixed(1):0;
+  const el=document.createElement('a');
+  el.href=p.link; el.target='_blank'; el.className='block group';
+  el.innerHTML=`<div class="relative mb-2"><img src="${p.thumb}" class="post-thumb group-hover:opacity-90 transition" onerror="this.style.background='#f3f4f6'"><span class="absolute top-2 left-2 badge ${typeBg(p.type)}">${typeIcon(p.type)} ${typeLabel(p.type)}</span></div><p class="text-xs text-gray-600 line-clamp-2 mb-1.5 leading-relaxed">${p.caption}</p><div class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-xs text-gray-400"><span>❤️ ${fmt(p.likes)}</span><span>👁️ ${fmt(p.views)}</span><span>📡 ${fmt(p.reach)}</span><span>📊 ${eng}% eng</span></div>`;
+  grid.appendChild(el);
+});
+document.getElementById('syncTime').textContent='Dados de 12 jul – 10 ago 2026';
+</script>
+</body>
+</html>
